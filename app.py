@@ -6,18 +6,14 @@ import requests
 
 app = Flask(__name__, subdomain_matching=True)
 
-print("Please enter a search term:")
-
-search_term = input()
-
 if __name__ == "__main__":
     url = 'wiki-search.com:5000'
     app.config['SERVER_NAME'] = url
     app.run()
 
 
-@app.route('/', subdomain = search_term)
-def wiki_search(search_term):
+@app.route('/')
+def wiki_search():
     BASE_URL = 'https://en.wikipedia.org/w/api.php'
 
     PARAMS = {
@@ -28,16 +24,22 @@ def wiki_search(search_term):
     "gpllimit" : "max",
     "prop" : "info",
     "inprop" : "url",
-    "titles" : search_term
+    "titles" : "ordinary"
     }
 
     res = requests.get(BASE_URL, params=PARAMS)
 
-    results = res["query"]["pages"][0]["fullurl"]
+    pages = res.json()['query']['pages']
 
-    # results = {
-    #     "links" : 
-    # }
+    url_list = []
+
+    import pdb; pdb.set_trace()
+    for key in pages:
+        url_list.append(res.json()['query']['pages'][key]['fullurl'])
+
+    results = {
+        "links" : url_list
+    }
 
     return results
 
