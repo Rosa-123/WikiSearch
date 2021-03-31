@@ -1,19 +1,19 @@
 from flask import Flask  
 from flask import jsonify 
 from flask import request
+from urllib.parse import urlparse
 import requests
 
 
-app = Flask(__name__, subdomain_matching=True)
-
+app = Flask(__name__)
 if __name__ == "__main__":
-    url = 'wiki-search.com:5000'
-    app.config['SERVER_NAME'] = url
+    app.config['SERVER_NAME'] = 'wiki-search.com'
     app.run()
 
 
-@app.route('/')
+@app.route("/")
 def wiki_search():
+    subdomain = urlparse(request.url).hostname.split('.')[0]
     BASE_URL = 'https://en.wikipedia.org/w/api.php'
 
     PARAMS = {
@@ -24,7 +24,7 @@ def wiki_search():
     "gpllimit" : "max",
     "prop" : "info",
     "inprop" : "url",
-    "titles" : "ordinary"
+    "titles" : subdomain
     }
 
     res = requests.get(BASE_URL, params=PARAMS)
@@ -33,7 +33,6 @@ def wiki_search():
 
     url_list = []
 
-    import pdb; pdb.set_trace()
     for key in pages:
         url_list.append(res.json()['query']['pages'][key]['fullurl'])
 
@@ -42,6 +41,7 @@ def wiki_search():
     }
 
     return results
+
 
 
     
